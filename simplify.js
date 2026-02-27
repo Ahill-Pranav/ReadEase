@@ -115,11 +115,14 @@ function chunkText(text, maxWords) {
 }
 
 // Main entry point called from HTML
+// Main entry point called from HTML
 async function handleSimplify(level) {
     const text = window._originalText;
     if (!text) { alert('Load some text first.'); return; }
 
-    showLoading(`Simplifying to Level ${level}...`);
+    const targetLang = typeof selectedLang !== 'undefined' ? selectedLang : 'hi-IN';
+
+    showLoading(`Simplifying and translating to Level ${level}...`);
 
     let result;
     try {
@@ -130,12 +133,37 @@ async function handleSimplify(level) {
         result = simplifyLevel1(text); // always fallback
     }
 
+    const translatedText = await translateText(result, targetLang);
+
     hideLoading();
-    window._simplifiedText = result;
+    window._simplifiedText = translatedText;
     showTab('simplified');
+
+    // We update readability based on the english simplified text since FK doesn't work well on translated text
     updateReadabilityBadge(result, true);
+
+    // Show the new badge
+    document.getElementById('new-badge')?.classList.remove('hidden');
 
     // Mark active level button
     document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`[data-level="${level}"]`)?.classList.add('active');
+}
+
+// ─── TRANSLATION LOGIC ───────────────────────────────────────────────────────
+
+async function translateText(text, targetLangCode) {
+    if (!text || !targetLangCode) return text;
+    // Map our lang codes to Google Translate codes
+    const gtLang = targetLangCode.split('-')[0]; // e.g. hi-IN -> hi
+
+    try {
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${gtLang}&dt=t&q=${encodeURIComponent(text)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        return data[0].map(x => x[0]).join('');
+    } catch (err) {
+        console.error('Translation error:', err);
+        return text;
+    }
 }

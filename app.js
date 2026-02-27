@@ -95,10 +95,21 @@ function showTab(tab) {
   document.getElementById('tab-original').classList.toggle('active', tab === 'original');
   document.getElementById('tab-simplified').classList.toggle('active', tab === 'simplified');
 
+  if (tab === 'simplified') {
+    const badge = document.getElementById('new-badge');
+    if (badge) badge.classList.add('hidden');
+  }
+
   const text = tab === 'original'
     ? window._originalText
     : (window._simplifiedText || 'Press a simplify level on the left first.');
-  document.getElementById('output-text').innerText = text;
+
+  if (tab === 'original' && document.getElementById('output-text').innerHTML.includes('class="word"')) {
+    // Re-render words if they were inside TTS spans
+    speakText(window._originalText, selectedLang, true); // true = just render spans, don't speak
+  } else {
+    document.getElementById('output-text').innerText = text;
+  }
 }
 
 // ─── Dyslexia Mode ──────────────────────────────────────────────────────────
@@ -110,9 +121,11 @@ function toggleDyslexicMode() {
   btn.classList.toggle('active', dyslexicMode);
 }
 
-// ─── TTS with Word Highlight ─────────────────────────────────────────────────
-function speakText(text, langCode) {
+// Fixed speakText to optionally just render
+function speakText(text, langCode, noSpeak = false) {
   window.speechSynthesis.cancel();
+
+
 
   const words = text.split(/(\s+)/);
   const container = document.getElementById('output-text');
@@ -123,6 +136,8 @@ function speakText(text, langCode) {
       ? `<span class="word" id="word-${wordIndex++}">${part}</span>`
       : part
   ).join('');
+
+  if (noSpeak) return;
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = langCode;
@@ -218,3 +233,4 @@ if ('serviceWorker' in navigator) {
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 renderLanguageButtons();
+setOutputText(SAMPLE_TEXT);

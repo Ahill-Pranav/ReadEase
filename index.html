@@ -23,9 +23,6 @@
         <p class="tagline">Any text. Any learner. Any language.</p>
       </div>
     </div>
-    <div class="header-controls">
-      <button id="dyslexia-toggle" onclick="toggleDyslexicMode()">Dyslexia Mode</button>
-    </div>
   </header>
 
   <main>
@@ -33,7 +30,7 @@
     <aside class="controls-panel">
 
       <section class="control-group">
-        <h3>Load Content</h3>
+        <h3><span class="step-num">1</span> Load Content</h3>
         <label class="upload-btn">
           📄 Upload PDF
           <input type="file" id="pdf-upload" accept=".pdf" hidden />
@@ -46,12 +43,15 @@
       </section>
 
       <section class="control-group">
-        <h3>Language</h3>
+        <h3><span class="step-num">2</span> Language</h3>
         <div id="language-buttons" class="lang-grid"></div>
       </section>
 
       <section class="control-group">
-        <h3>Simplify</h3>
+        <div class="header-with-status">
+          <h3><span class="step-num">3</span> Simplify</h3>
+          <div id="model-status" class="model-status">AI model: not loaded</div>
+        </div>
         <div class="simplify-levels">
           <button class="level-btn" data-level="1" onclick="handleSimplify(1)">
             <span class="level-label">Level 1</span>
@@ -66,7 +66,11 @@
             <span class="level-desc">Core idea only</span>
           </button>
         </div>
-        <div id="model-status" class="model-status">AI model: not loaded</div>
+      </section>
+
+      <section class="control-group actions">
+        <h3><span class="step-num">4</span> Listen & Read</h3>
+        <button id="listen-btn" class="primary-btn tts-btn" onclick="toggleSpeech()">▶ Listen</button>
       </section>
 
       <section class="control-group">
@@ -77,16 +81,13 @@
         <input type="range" id="line-spacing" min="1.4" max="2.5" step="0.1" value="1.7"
           oninput="setLineSpacing(this.value)" />
         <label>Contrast</label>
-        <div class="contrast-options">
+        <div class="contrast-options" style="margin-bottom: 12px;">
           <button onclick="setContrastMode('normal')">Normal</button>
           <button onclick="setContrastMode('sepia')">Sepia</button>
           <button onclick="setContrastMode('dark')">Dark</button>
           <button onclick="setContrastMode('highContrast')">High ↑</button>
         </div>
-      </section>
-
-      <section class="control-group actions">
-        <button id="listen-btn" class="primary-btn" onclick="toggleSpeech()">▶ Listen</button>
+        <button id="dyslexia-toggle" onclick="toggleDyslexicMode()">Dyslexia Mode</button>
       </section>
 
     </aside>
@@ -106,12 +107,13 @@
       <!-- Tabs -->
       <div class="tabs">
         <button id="tab-original" class="tab active" onclick="showTab('original')">Original</button>
-        <button id="tab-simplified" class="tab" onclick="showTab('simplified')">✨ Simplified</button>
+        <button id="tab-simplified" class="tab" onclick="showTab('simplified')">✨ Simplified <span id="new-badge"
+            class="new-badge hidden"></span></button>
       </div>
 
       <!-- Text Output -->
       <div id="output-text" class="text-output">
-        <p class="placeholder">Upload a PDF or paste text on the left to begin.</p>
+        <p class="placeholder">Loading...</p>
       </div>
 
       <!-- Quiz Section -->
