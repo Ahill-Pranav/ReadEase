@@ -1,0 +1,13 @@
+{
+  "name": "ReadEase",
+  "short_name": "ReadEase",
+  "description": "Any text. Any learner. Any language.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF6EC",
+  "theme_color": "#E07B39",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReadEase — Read Better, Together</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      <span class="logo-icon">📖</span>
+      <div>
+        <h1>ReadEase</h1>
+        <p class="tagline">Any text. Any learner. Any language.</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: Controls -->
+    <aside class="controls-panel">
+
+      <section class="control-group">
+        <h3><span class="step-num">1</span> Load Content</h3>
+        <label class="upload-btn">
+          📄 Upload PDF
+          <input type="file" id="pdf-upload" accept=".pdf" hidden />
+        </label>
+        <textarea id="text-input" placeholder="Or paste your text here..." rows="5"></textarea>
+        <div class="btn-row">
+          <button class="primary-btn" onclick="loadPastedText()">Load Text</button>
+          <button class="secondary-btn" id="load-sample">Try Sample</button>
+        </div>
+      </section>
+
+      <section class="control-group">
+        <h3><span class="step-num">2</span> Language</h3>
+        <div id="language-buttons" class="lang-grid"></div>
+      </section>
+
+      <section class="control-group">
+        <div class="header-with-status">
+          <h3><span class="step-num">3</span> Simplify</h3>
+          <div id="model-status" class="model-status">AI model: not loaded</div>
+        </div>
+        <div class="simplify-levels">
+          <button class="level-btn" data-level="1" onclick="handleSimplify(1)">
+            <span class="level-label">Level 1</span>
+            <span class="level-desc">Shorter sentences</span>
+          </button>
+          <button class="level-btn" data-level="2" onclick="handleSimplify(2)">
+            <span class="level-label">Level 2</span>
+            <span class="level-desc">Plain language</span>
+          </button>
+          <button class="level-btn" data-level="3" onclick="handleSimplify(3)">
+            <span class="level-label">Level 3</span>
+            <span class="level-desc">Core idea only</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="control-group actions">
+        <h3><span class="step-num">4</span> Listen & Read</h3>
+        <button id="listen-btn" class="primary-btn tts-btn" onclick="toggleSpeech()">▶ Listen</button>
+      </section>
+
+      <section class="control-group">
+        <h3>Accessibility</h3>
+
+        <label>Focus Mode</label>
+        <button id="focus-toggle" class="secondary-btn" style="width: 100%; margin-bottom: 8px;"
+          onclick="toggleFocusMode()">
+          Off
+        </button>
+
+        <label>Reading Ruler</label>
+        <button id="ruler-toggle" class="secondary-btn" style="width: 100%; margin-bottom: 8px;"
+          onclick="toggleRuler()">
+          Off
+        </button>
+
+        <label>Word Spacing</label>
+        <input type="range" id="word-spacing" min="0" max="0.5" step="0.05" value="0"
+          oninput="setWordSpacing(this.value)" />
+
+        <label>Font Size <span id="font-size-val">18px</span></label>
+        <input type="range" id="font-size" min="14" max="28" value="18" oninput="setFontSize(this.value)" />
+        <label>Line Spacing</label>
+        <input type="range" id="line-spacing" min="1.4" max="2.5" step="0.1" value="1.7"
+          oninput="setLineSpacing(this.value)" />
+        <label>Contrast</label>
+        <div class="contrast-options" style="margin-bottom: 12px;">
+          <button onclick="setContrastMode('normal')">Normal</button>
+          <button onclick="setContrastMode('sepia')">Sepia</button>
+          <button onclick="setContrastMode('dark')">Dark</button>
+          <button onclick="setContrastMode('highContrast')">High ↑</button>
+        </div>
+        <button id="dyslexia-toggle" onclick="toggleDyslexicMode()">Dyslexia Mode</button>
+      </section>
+
+    </aside>
+
+    <!-- RIGHT: Output -->
+    <section class="output-panel" id="output-panel">
+
+      <!-- Readability Badge -->
+      <div id="readability-badge" class="readability-badge hidden">
+        <span id="badge-level" class="badge-level">Hard</span>
+        <span id="badge-grade">Grade 14</span>
+        <span id="badge-time">8 min read</span>
+        <span id="badge-arrow">→</span>
+        <span id="badge-after" class="hidden"></span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button id="tab-original" class="tab active" onclick="showTab('original')">Original</button>
+        <button id="tab-simplified" class="tab" onclick="showTab('simplified')">✨ Simplified <span id="new-badge"
+            class="new-badge hidden"></span></button>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state">
+        <div class="empty-hero">📖</div>
+        <h2>Start by loading your content</h2>
+        <p>Upload a PDF, paste text, or try the sample to see ReadEase in action.</p>
+
+        <div class="how-it-works">
+          <div class="step-card">
+            <span class="step-icon">📄</span>
+            <span class="step-text">Load any text or PDF</span>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card">
+            <span class="step-icon">✨</span>
+            <span class="step-text">Simplify to your level</span>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card">
+            <span class="step-icon">🔊</span>
+            <span class="step-text">Listen in your language</span>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card">
+            <span class="step-icon">🧠</span>
+            <span class="step-text">Test your understanding</span>
+          </div>
+        </div>
+
+        <button class="try-sample-hero" onclick="document.getElementById('load-sample').click()">
+          Try a sample — see it work in 10 seconds
+        </button>
+      </div>
+
+      <!-- Text Output -->
+      <div id="output-text" class="text-output">
+      </div>
+
+      <!-- Quiz Section -->
+      <div id="quiz-section" class="quiz-section hidden">
+        <h3>🧠 Check Your Understanding</h3>
+        <div id="quiz-questions"></div>
+        <button onclick="generateQuiz()" class="secondary-btn">New Questions</button>
+      </div>
+
+      <!-- Loading -->
+      <div id="loading" class="loading hidden">
+        <div class="loading-inner">
+          <span id="loading-icon" class="loading-icon">⏳</span>
+          <div>
+            <div id="loading-msg" class="loading-msg">Processing...</div>
+            <div id="loading-sub" class="loading-sub"></div>
+          </div>
+          <div class="loading-bar">
+            <div class="loading-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="readability.js"></script>
+  <script src="simplify.js"></script>
+  <script src="quiz.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
