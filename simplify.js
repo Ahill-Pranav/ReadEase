@@ -123,8 +123,7 @@ async function handleSimplify(level) {
 
     const targetLang = typeof selectedLang !== 'undefined' ? selectedLang : 'hi-IN';
 
-    showLoading('simplify');
-
+    showLoading(`Simplifying and translating to Level ${level}...`);
     let result;
     try {
         if (level === 1) result = simplifyLevel1(text);

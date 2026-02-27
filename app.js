@@ -160,6 +160,8 @@ function speakText(text, langCode, noSpeak = false) {
 
   if (noSpeak) return;
 
+  document.getElementById('listen-btn').classList.toggle('playing', true);
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = langCode;
   utterance.rate = 0.85;
@@ -209,32 +211,10 @@ function toggleSpeech() {
       showToast('Please paste some text or upload a PDF first', 'error');
       return;
     }
-    document.getElementById('listen-btn').classList.toggle('playing', true);
     speakText(text, selectedLang);
   }
 }
 
-// Toggle class when TTS stops
-const originalSpeakText = speakText;
-speakText = function (text, langCode, noSpeak = false) {
-  if (!noSpeak) {
-    document.getElementById('listen-btn').classList.toggle('playing', true);
-
-    // Patch onend to handle playing class
-    const oldOnEnd = utterance => {
-      if (utterance.onend) {
-        const _onend = utterance.onend;
-        utterance.onend = (e) => {
-          document.getElementById('listen-btn').classList.toggle('playing', false);
-          _onend(e);
-        };
-      }
-    };
-    // Will patch it inside speakText where utterance is created. 
-    // Wait, replacing it here is messy. I will replace it within the speakText function below instead of wrapping.
-  }
-  originalSpeakText(text, langCode, noSpeak);
-};
 
 // ─── Accessibility Controls ──────────────────────────────────────────────────
 
